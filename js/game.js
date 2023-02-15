@@ -1,7 +1,8 @@
 "use strict";
 
 let stateGame = {
-
+    "state": "OK",
+    
 }
 
 let state = "OK";
