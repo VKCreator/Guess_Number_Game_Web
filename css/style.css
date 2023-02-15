@@ -1,0 +1,29 @@
+.bg-container {
+    background-color: pink;
+}
+
+.center-container {
+    max-width: 500px;
+    min-width: 200px;
+}
+
+.ruleSection span {
+    font-weight: bold;
+}
+
+.winnerStyle, .loseStyle {
+    font-weight: 700;
+}
+
+.winnerStyle {
+    color: gray;
+}
+
+#startGame:focus, #guessButton:focus {
+    font-weight: bold;
+}
+
+input[type="number"]
+{
+    font-size:12px;
+}
