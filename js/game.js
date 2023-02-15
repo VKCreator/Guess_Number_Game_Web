@@ -1,16 +1,13 @@
 "use strict";
 
 let stateGame = {
-    "state": "OK",
-    
-}
-
-let state = "OK";
-let guessComputerNumber = null;
-let maxVal = null;
-let minVal = null;
-let maxLength = null;
-let attemptsCount = null;
+    state: "OK",
+    guessComputerNumber: null,
+    maxVal: null,
+    minVal: null,
+    maxLength: null,
+    attemptsCount: null,
+};
 
 window.addEventListener('DOMContentLoaded', initGame);
 window.addEventListener('DOMContentLoaded', settingsElements);
@@ -27,9 +24,9 @@ function initGame() {
     startNumberElement.textContent = randomStartNumber;
     finishNumberElement.textContent = randomFinishNumber;
     attemptsCountElement.textContent = Math.ceil(Math.log2(randomFinishNumber - randomStartNumber + 1));
-    attemptsCount = +attemptsCountElement.textContent;
+    stateGame.attemptsCount = +attemptsCountElement.textContent;
 
-    guessComputerNumber = randomStartNumber + Math.floor(Math.random() * (randomFinishNumber - randomStartNumber + 1));
+    stateGame.guessComputerNumber = randomStartNumber + Math.floor(Math.random() * (randomFinishNumber - randomStartNumber + 1));
 
     // document.activeElement.blur();
     inputGuessNumber.classList.remove("is-invalid");
@@ -39,54 +36,58 @@ function initGame() {
     inputGuessNumber.focus();
 
     document.getElementById("infoAboutTry").textContent = "Здесь отображаются результаты вашей попытки!";
-    maxVal = randomFinishNumber;
-    minVal = randomStartNumber; 
-    maxLength = finishNumberElement.textContent.length;
+    stateGame.maxVal = randomFinishNumber;
+    stateGame.minVal = randomStartNumber; 
+    stateGame.maxLength = finishNumberElement.textContent.length;
 
     document.getElementById("guessButton").setAttribute("disabled","true");
-    document.getElementsByClassName("containerInfo")[0].classList.remove("winnerStyle");
-    document.getElementsByClassName("containerInfo")[0].classList.remove("loseStyle");
+
+    let containerInfoEl = document.getElementsByClassName("containerInfo")[0];
+    containerInfoEl.classList.remove("winnerStyle");
+    containerInfoEl.classList.remove("loseStyle");
 }
 
 function settingsElements() {
+    let inputGuessNumber = document.getElementById("typeNumberGuess");
+    let guessButtonEl = document.getElementById("guessButton");
+
     document.getElementById("startGame").addEventListener("click", initGame);
 
-    document.getElementById("typeNumberGuess").addEventListener("keyup", processUserTry);
-    document.getElementById("typeNumberGuess").addEventListener("input", checkUserValue);
+    inputGuessNumber.addEventListener("keyup", processUserTry);
+    inputGuessNumber.addEventListener("input", checkUserValue);
 
-    document.getElementById("guessButton").addEventListener("keyup", processUserTry);
-    document.getElementById("guessButton").addEventListener("click", processUserTry);
+    // guessButtonEl.addEventListener("keyup", processUserTry);
+    guessButtonEl.addEventListener("click", processUserTry);
 }
 
 function processUserTry(e) {
 
     let inputEl = document.getElementById("typeNumberGuess");
 
-    if (state == "OK" && inputEl.value != "") {
+    if (stateGame.state == "OK" && inputEl.value != "") {
         let activeEl = document.activeElement;
         let infoEl = document.getElementById("infoAboutTry");
 
-        if (activeEl === inputEl && e.key === "Enter" || 
-        activeEl == document.getElementById("guessButton") && (e.type === "click" || e.key === "Enter") ) {
+        if ((activeEl === inputEl || activeEl === document.getElementById("guessButton")) && (e.key === "Enter" || e.type === "click")) {
         let userValue = +inputEl.value;
-        console.log(guessComputerNumber)
-        if (userValue > guessComputerNumber) {
+
+        if (userValue > stateGame.guessComputerNumber) {
                 infoEl.textContent = `Загаданное число меньше ${userValue}.`;
         }
-        else if (userValue < guessComputerNumber) {
+        else if (userValue < stateGame.guessComputerNumber) {
                 infoEl.textContent = `Загаданное число больше ${userValue}.`;
         }
         else {
                 win();
                 return;
         }
-        attemptsCount--;
+        stateGame.attemptsCount--;
 
-        if (!attemptsCount) {
+        if (!stateGame.attemptsCount) {
                 gameOver();
         }
         else {
-            infoEl.textContent += ` Количество оставшихся попыток: ${attemptsCount}.`;
+            infoEl.textContent += ` Количество оставшихся попыток: ${stateGame.attemptsCount}.`;
         }
         }
     } 
@@ -94,27 +95,25 @@ function processUserTry(e) {
 
 function win() {
     let infoEl = document.getElementById("infoAboutTry");
-    let inputEl = document.getElementById("typeNumberGuess");
 
-    infoEl.textContent = `Вы угадали! Это число: ${guessComputerNumber}.`;
+    infoEl.textContent = `Вы угадали! Это число: ${stateGame.guessComputerNumber}.`;
     document.getElementsByClassName("containerInfo")[0].classList.add("winnerStyle");
 
-    inputEl.setAttribute("disabled", "disabled");
-    document.getElementById("guessButton").setAttribute("disabled", "disabled");
-
-    document.getElementById("startGame").focus();
+    finishGame();
 }
 
 function gameOver() {
     let infoEl = document.getElementById("infoAboutTry");
-    let inputEl = document.getElementById("typeNumberGuess");
 
-    infoEl.textContent = `Вы проиграли! Загаданное число: ${guessComputerNumber}.`;
+    infoEl.textContent = `Вы проиграли! Загаданное число: ${stateGame.guessComputerNumber}.`;
     document.getElementsByClassName("containerInfo")[0].classList.add("loseStyle");
 
-    inputEl.setAttribute("disabled", "disabled");
-    document.getElementById("guessButton").setAttribute("disabled", "disabled");
+    finishGame();
+}
 
+function finishGame() {
+    document.getElementById("typeNumberGuess").setAttribute("disabled", "disabled");
+    document.getElementById("guessButton").setAttribute("disabled", "disabled");
     document.getElementById("startGame").focus();
 }
 
@@ -129,22 +128,22 @@ function checkUserValue(event)
     let buttonGuess = document.getElementById("guessButton");
     let inputEl = document.getElementById("typeNumberGuess");
 
-    if (val.length > maxLength) 
+    if (val.length > stateGame.maxLength) 
     {
-        event.target.value = val.slice(0,maxLength);
+        event.target.value = val.slice(0, stateGame.maxLength);
         val = event.target.value;
     }
 
-    if (!isNumber(val) || +val > maxVal || +val < minVal) 
+    if (!isNumber(val) || +val > stateGame.maxVal || +val < stateGame.minVal) 
     {
-       state = "ERROR";
+       stateGame.state = "ERROR";
        event.target.classList.add("is-invalid")
        buttonGuess.setAttribute("disabled","true")
        inputEl.title = "Вводить строки запрещено или число вне диапазона!";
     }
     else 
     {
-        state = "OK";
+        stateGame.state = "OK";
         event.target.classList.add("is-valid");
         event.target.classList.remove("is-invalid");
         buttonGuess.removeAttribute("disabled","");
