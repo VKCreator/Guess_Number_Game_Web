@@ -134,7 +134,14 @@ function checkUserValue(event)
         val = event.target.value;
     }
 
-    if (!isNumber(val) || +val > stateGame.maxVal || +val < stateGame.minVal) 
+    let isString = false;
+    if (!isNumber(val)) 
+    {
+       event.target.value = "";
+       isString = true;
+    }
+
+    if (isString || +val > stateGame.maxVal || +val < stateGame.minVal) 
     {
        stateGame.state = "ERROR";
        event.target.classList.add("is-invalid")
